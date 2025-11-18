@@ -1,0 +1,44 @@
+services:
+  n8n-app:
+    container_name: n8n-app
+    image: n8nio/n8n:1.118.1
+    restart: always
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678
+      - NODE_ENV=production
+      - NODE_OPTIONS=--max-old-space-size=2048 --no-warnings
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=1440
+      - EXECUTIONS_DATA_SAVE_ON_ERROR=all
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=none
+      - EXECUTIONS_DATA_SAVE_ON_PROGRESS=false
+      - N8N_PROXY_HOPS=1
+      - N8N_TRUSTED_PROXIES=0.0.0.0/0
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_PASSWORD=n8n_password
+      - TZ=Asia/Jakarta
+    volumes:
+      - /home/$USER/volumes/n8n_apps:/home/node/.n8n
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: n8n-postgres
+    image: postgres:17.5-bookworm
+    restart: always
+    environment:
+      - POSTGRES_USER=n8n
+      - POSTGRES_PASSWORD=n8n_password
+      - POSTGRES_DB=n8n
+      - TZ=Asia/Jakarta
+    volumes:
+      - /home/$USER/volumes/n8n_postgres:/var/lib/postgresql/data
